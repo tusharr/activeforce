@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640" />
+
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>Activeforce by tusharr</title>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/tusharr/activeforce">View on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>Activeforce</h1>
+            <h2>Activeforce provides a simple to use and extend interface to Salesforce using the REST API</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/tusharr/activeforce/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/tusharr/activeforce/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <h1>
+<a name="activeforce" class="anchor" href="#activeforce"><span class="octicon octicon-link"></span></a>ActiveForce</h1>
+
+<p>Activeforce provides a clean ActiveRecord-like interface to the SalesForce.com REST API.</p>
+
+<ul>
+<li>Detects the schema of the SalesForce Objects on the fly, so that you can interact with the familiar ActiveRecord style attribute accessor methods.</li>
+<li>Provides full access to all methods provided to the SQL-like Salesforce Object Query Language (SOQL).</li>
+<li>Integrates with Salesforce.com REST-based BULK API.</li>
+</ul><h2>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
+
+<h3>
+<a name="simple-usage" class="anchor" href="#simple-usage"><span class="octicon octicon-link"></span></a>Simple Usage</h3>
+
+<pre><code>Salesforce.configure do
+  username "foo@bar.com"
+  password "salesforcepassword"
+end
+</code></pre>
+
+<p>The password is a combination of your salesforce password and the API Token</p>
+
+<h3>
+<a name="specifying-a-particular-api-version" class="anchor" href="#specifying-a-particular-api-version"><span class="octicon octicon-link"></span></a>Specifying a particular API version</h3>
+
+<p>By default, activeforce uses version 22 of the Salesforce REST API. To specify another version:</p>
+
+<pre><code>Salesforce.configure do
+  username "foo@bar.com"
+  password "salesforcepasswordapitoken" # This should be your salesforce password + your API Token
+  api_version 18
+end
+</code></pre>
+
+<h3>
+<a name="using-the-sandbox" class="anchor" href="#using-the-sandbox"><span class="octicon octicon-link"></span></a>Using the Sandbox</h3>
+
+<pre><code>Salesforce.configure do
+  username "foo@bar.com.sandbox"
+  password "salesforcepassword"
+  end
+</code></pre>
+
+<h3>
+<a name="finders" class="anchor" href="#finders"><span class="octicon octicon-link"></span></a>Finders</h3>
+
+<p>activeforce provides implementation for some standard Salesforce Objects like Account, Contact, Opportunity, etc</p>
+
+<h3>
+<a name="accessing-custom-objects" class="anchor" href="#accessing-custom-objects"><span class="octicon octicon-link"></span></a>Accessing custom objects</h3>
+
+<p>activeforce provides an easy way to declare models for custom objects or other SalesForce objects that are not included by default.</p>
+
+<pre><code>class Salesforce::CustomObject &lt; Salesforce::Base
+  self.custom_object = true
+end
+
+# or 
+
+class Salesforce::Feed &lt; Salesforce::Base
+end
+</code></pre>
+
+<h4>
+<a name="find-all-objects" class="anchor" href="#find-all-objects"><span class="octicon octicon-link"></span></a>Find all objects</h4>
+
+<pre><code>Salesforce::Account.all
+</code></pre>
+
+<h4>
+<a name="find-account-by-id" class="anchor" href="#find-account-by-id"><span class="octicon octicon-link"></span></a>Find Account by id</h4>
+
+<pre><code>Salesforce::Account.find("accountid")
+</code></pre>
+
+<h4>
+<a name="dynamic-finders" class="anchor" href="#dynamic-finders"><span class="octicon octicon-link"></span></a>Dynamic Finders</h4>
+
+<pre><code>Salesforce::Account.find_by_name("accountname")
+</code></pre>
+
+<h4>
+<a name="specifying-conditions" class="anchor" href="#specifying-conditions"><span class="octicon octicon-link"></span></a>Specifying conditions</h4>
+
+<pre><code>http://www.salesforce.com/us/developer/docs/api/index_Left.htm#CSHID=sforce_api_calls_soql.htm|StartTopic=Content%2Fsforce_api_calls_soql.htm|SkinName=webhelp
+
+Salesforce::Account.find(:all, :conditions =&gt; ":name = :value", :value =&gt; "my special name") 
+# Issues a SOQL query to search for all Account objects where the field 'Name' matches "my special name"
+# The SOQL Query is SELECT Id,Name,... FROM Account WHERE Name = 'my special name'
+#
+# This method of specifying columns in the query handles custom columns as well.
+Salesforce::Account.find(:all, :conditions =&gt; ":account_type = :value", :value =&gt; "Special")
+# The SOQL Query issued here is  SELECT Id,Name,... FROM Account WHERE Account_Type__c = 'Special'
+</code></pre>
+
+<h4>
+<a name="creating-and-updating-objects" class="anchor" href="#creating-and-updating-objects"><span class="octicon octicon-link"></span></a>Creating and Updating Objects</h4>
+
+<h4>
+<a name="deleting-objects" class="anchor" href="#deleting-objects"><span class="octicon octicon-link"></span></a>Deleting Objects</h4>
+
+<h2>
+<a name="salesforce-bulk-api" class="anchor" href="#salesforce-bulk-api"><span class="octicon octicon-link"></span></a>Salesforce Bulk API</h2>
+
+<p>You can create and schedule a job by:</p>
+
+<pre><code>job = Salesforce::Account.bulk_update do
+  batch do
+    record account_1 # account_1 is an object of type Salesforce::Account
+    record account_2 # account_1 is an object of type Salesforce::Account
+  end
+end
+</code></pre>
+
+<p>You can specify the columns that you want to update
+    job = Salesforce::Account.bulk_update(:name, :website) do
+      batch do
+        record account_1 # account_1 is an object of type Salesforce::Account
+        record account_2 # account_1 is an object of type Salesforce::Account
+      end
+    end</p>
+
+<h3>
+<a name="contributing-to-activeforce" class="anchor" href="#contributing-to-activeforce"><span class="octicon octicon-link"></span></a>Contributing to activeforce</h3>
+
+<ul>
+<li>Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet</li>
+<li>Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it</li>
+<li>Fork the project</li>
+<li>Start a feature/bugfix branch</li>
+<li>Commit and push until you are happy with your contribution</li>
+<li>Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.</li>
+<li>Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.</li>
+</ul><h3>
+<a name="copyright" class="anchor" href="#copyright"><span class="octicon octicon-link"></span></a>Copyright</h3>
+
+<p>Copyright (c) 2012 AppFolio, Inc.. See LICENSE.txt for further details.</p>
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/tusharr">tusharr</a> can be found on <a href="https://github.com/tusharr/activeforce">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+
+    
+  </body>
+</html>
